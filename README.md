@@ -199,7 +199,7 @@ If you use this code, please cite:
 ACM reference format
 
 
-Haoran Niu, Yang Chen, Moumita Samanta, and Olufemi A. Omitaomu. 2025. Self-Supervised T-GCN for Detection of Disturbance and Propagation in Power Grid. In Proceedings of the ACM SIGSPATIAL UrbanAI Workshop (UrbanAI’25). ACM, New York, NY, USA, 8 pages.
+Haoran Niu, Yang Chen, Moumita Samanta, and Olufemi A. Omitaomu. 2025. Self-Supervised T-GCN for Detection of Disturbance and Propagation in Power Grid. In Proceedings of the ACM SIGSPATIAL UrbanAI Workshop (UrbanAI’25). ACM, Minneapolis, MN, USA, 8 pages.
 
 
 ### BibTex
@@ -210,7 +210,7 @@ Haoran Niu, Yang Chen, Moumita Samanta, and Olufemi A. Omitaomu. 2025. Self-Supe
   title     = {Self-Supervised T-GCN for Detection of Disturbance and Propagation in Power Grid},
   booktitle = {Proceedings of the ACM SIGSPATIAL UrbanAI Workshop (UrbanAI'25)},
   year      = {2025},
-  address   = {New York, NY, USA},
+  address   = {Minneapolis, MN, USA},
   publisher = {ACM},
   doi       = {10.1145/XXXXXXX.XXXXXXX}
 }
