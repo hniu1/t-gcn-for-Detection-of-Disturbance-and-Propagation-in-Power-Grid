@@ -1,0 +1,39 @@
+# Data (provided separately on HPC)
+data/
+*.parquet
+FDRLocation.xlsx
+
+# Model checkpoints and large outputs
+results/best_model.pt
+results/test_*.npy
+results/history.npy
+results/*_predictions.npy
+results/*_targets.npy
+*.pt
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Environment
+.env
+.venv
+env/
+venv/
