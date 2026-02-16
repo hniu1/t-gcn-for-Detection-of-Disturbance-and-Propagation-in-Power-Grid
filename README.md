@@ -1,4 +1,6 @@
-# Multi-Feature T-GCN for PMU Spatiotemporal Forecasting
+# RADAR: Rapid Automated Detection And Recognition of disturbances in power distribution networks
+
+Multi-Feature T-GCN for PMU Spatiotemporal Forecasting
 
 This directory contains a modular T-GCN model for multi-feature spatiotemporal forecasting on PMU data.
 
