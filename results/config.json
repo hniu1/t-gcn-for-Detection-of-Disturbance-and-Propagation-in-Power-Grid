@@ -1,0 +1,42 @@
+{
+  "data_dir": "/lustre/orion/proj-shared/cli138/7hn/FNET/data/2024-06-01",
+  "metadata_file": "/lustre/orion/proj-shared/cli138/7hn/FNET/data/FDRLocation.xlsx",
+  "adjacency_file": "./results/A_geo.npy",
+  "inferred_locs_file": "./results/inferred_locations.csv",
+  "output_dir": "./results",
+  "Tin": 100,
+  "H": 10,
+  "hidden_dim": 64,
+  "num_layers": 2,
+  "lr": 0.001,
+  "batch_size": 32,
+  "epochs": 50,
+  "device": "cuda",
+  "seed": 42,
+  "final_train_loss": 0.010791229355408154,
+  "final_val_loss": 0.012956394486733386,
+  "final_test_loss": 0.015127755575687499,
+  "elapsed_time": 15292.049271583557,
+  "num_params": 31646,
+  "train_metrics": {
+    "mse": 0.010791268199682236,
+    "mae": 0.03775431588292122,
+    "rmse": 0.10388103127479553,
+    "r2": 0.9545111656188965,
+    "mape": 1121.24169921875
+  },
+  "val_metrics": {
+    "mse": 0.012953647412359715,
+    "mae": 0.04833707958459854,
+    "rmse": 0.1138140931725502,
+    "r2": 0.9431288242340088,
+    "mape": 844.5120849609375
+  },
+  "test_metrics": {
+    "mse": 0.01513089332729578,
+    "mae": 0.05264696106314659,
+    "rmse": 0.12300769984722137,
+    "r2": 0.9336354732513428,
+    "mape": 684.1702880859375
+  }
+}

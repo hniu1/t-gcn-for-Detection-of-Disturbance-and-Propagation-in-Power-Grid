@@ -146,6 +146,10 @@ def main():
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
     
     args = parser.parse_args()
+
+    if args.device.startswith('cuda'):
+        torch.backends.cudnn.enabled = False
+        print("cuDNN disabled for CUDA run (compatibility mode).")
     
     # Set random seed
     np.random.seed(args.seed)

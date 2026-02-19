@@ -1,0 +1,75 @@
+cuDNN disabled for CUDA run (compatibility mode).
+============================================================
+Multi-Feature T-GCN Training
+============================================================
+Loading adjacency matrix from: ./results/A_geo.npy
+Loaded sensor order mapping (107 entries) from: results/sensor_order.npy
+Adjacency matrix shape: (107, 107)
+
+Identifying active sensors from parquet files...
+Found 126 active sensors in data files
+Example IDs: [620, 623, 634, 640, 647]
+
+Loading metadata and matching with active sensors...
+Total sensors in metadata: 466
+Using adjacency sensor order; matched sensors: 107
+Sensors with both data files and metadata: 107
+
+Loading and preparing PMU data...
+Loaded 107 sensors
+Grid map has 3 unique grids
+Feature arrays shape: (60217, 107) (T=60217, N=107)
+
+Creating datasets (Tin=100, H=10)...
+Train samples: 48064
+Val samples: 1183
+Test samples: 1183
+
+Creating model (N=107, hidden_dim=64, layers=2)...
+Total model parameters: 31,646
+
+Training for 50 epochs...
+------------------------------------------------------------
+Epoch   1 | Train Loss: 0.042574 | Val Loss: 0.026674 | Test Loss: 0.029280
+Epoch  10 | Train Loss: 0.020202 | Val Loss: 0.016125 | Test Loss: 0.018215
+Epoch  20 | Train Loss: 0.021306 | Val Loss: 0.021461 | Test Loss: 0.024889
+Epoch  30 | Train Loss: 0.012927 | Val Loss: 0.014232 | Test Loss: 0.014944
+Epoch  40 | Train Loss: 0.011588 | Val Loss: 0.013272 | Test Loss: 0.016628
+Epoch  50 | Train Loss: 0.010917 | Val Loss: 0.012956 | Test Loss: 0.015128
+------------------------------------------------------------
+Training complete in 15292.0s
+
+Final Evaluation:
+
+--- Loss (MSE) ---
+Train Loss: 0.010791
+Val Loss:   0.012956
+Test Loss:  0.015128
+
+--- Train Metrics ---
+MSE:  0.010791
+MAE:  0.037754
+RMSE: 0.103881
+R²:   0.9545
+MAPE: 1121.24%
+
+--- Val Metrics ---
+MSE:  0.012954
+MAE:  0.048337
+RMSE: 0.113814
+R²:   0.9431
+MAPE: 844.51%
+
+--- Test Metrics ---
+MSE:  0.015131
+MAE:  0.052647
+RMSE: 0.123008
+R²:   0.9336
+MAPE: 684.17%
+
+Results saved to results
+  - best_model.pt
+  - test_predictions.npy
+  - test_targets.npy
+  - history.npy
+  - config.json
