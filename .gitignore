@@ -1,0 +1,7 @@
+__pycache__/data_processing.cpython-312.pyc
+__pycache__/dataset.cpython-312.pyc
+__pycache__/model.cpython-312.pyc
+results/best_model.pt
+results/history.npy
+results/test_predictions.npy
+results/test_targets.npy
