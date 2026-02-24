@@ -8,7 +8,7 @@ This directory contains a modular T-GCN model for multi-feature spatiotemporal f
 
 The model combines:
 - **4 Dynamic Features**: Δf (freq deviation), RoCoF (rate of change), Δθ (angle dynamics), ΔV (voltage residual)
-- **4 Static Features**: GridName embeddings
+- **Static Features**: GridName embeddings
 - **Graph Convolution**: Applied across spatial network at each timestep
 - **Temporal GRU**: Recurrent layer to capture inter-node temporal dynamics over Tin history
 - **Prediction**: Multi-step forecast (H=10 steps) of 3 target features (Δf, Δθ, ΔV)

@@ -37,3 +37,4 @@ Thumbs.db
 .venv
 env/
 venv/
+test_analysis/
