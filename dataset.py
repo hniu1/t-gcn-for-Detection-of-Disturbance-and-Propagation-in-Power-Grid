@@ -29,6 +29,7 @@ class PMUForecastDataset(Dataset):
                  rocof: np.ndarray,             # (T, N)
                  angle_delta: np.ndarray,       # (T, N)
                  volt_dev: np.ndarray,          # (T, N)
+                 observed_mask: np.ndarray,     # (T, N) bool/0-1 mask
                  grid_embeddings: np.ndarray,   # (N, 4)
                  Tin: int = 100,
                  H: int = 10,
@@ -44,8 +45,9 @@ class PMUForecastDataset(Dataset):
             H: Forecast horizon (output window size)
             stride: Sampling stride (1 for all windows, >1 for sparse sampling)
         """
-        assert len(freq_dev) == len(rocof) == len(angle_delta) == len(volt_dev)
+        assert len(freq_dev) == len(rocof) == len(angle_delta) == len(volt_dev) == len(observed_mask)
         assert freq_dev.shape[1] == rocof.shape[1] == angle_delta.shape[1] == volt_dev.shape[1]
+        assert observed_mask.shape == freq_dev.shape
         assert grid_embeddings.shape[0] == freq_dev.shape[1]
         
         self.T, self.N = freq_dev.shape
@@ -53,12 +55,19 @@ class PMUForecastDataset(Dataset):
         self.H = H
         self.stride = stride
         
-        # Stack features: (T, N, 4)
-        self.X = np.stack([freq_dev, rocof, angle_delta, volt_dev], axis=2)
+        # Stack features with mask channel: (T, N, 5)
+        self.X = np.stack([
+            freq_dev,
+            rocof,
+            angle_delta,
+            volt_dev,
+            observed_mask.astype(np.float32),
+        ], axis=2)
         
         # Target is subset of features: Δf, Δθ, ΔV (not RoCoF)
-        # Indices: [0] Δf, [2] Δθ, [3] ΔV
-        self.y = np.stack([freq_dev, angle_delta, volt_dev], axis=2)
+        # Target is subset of features: Δf and ΔV (not RoCoF / Δθ)
+        self.y = np.stack([freq_dev, volt_dev], axis=2)
+        self.y_mask = np.repeat(observed_mask[:, :, None].astype(np.float32), 2, axis=2)
         
         # Static embeddings
         self.grid_emb = grid_embeddings
@@ -71,7 +80,7 @@ class PMUForecastDataset(Dataset):
     def __len__(self) -> int:
         return len(self.valid_starts)
 
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Returns:
             x_input: (Tin, N, 4) input features
@@ -87,12 +96,14 @@ class PMUForecastDataset(Dataset):
         x_grid = self.grid_emb.copy()  # (N, 4)
         
         # Target window
-        y_target = self.y[t_start + self.Tin:t_start + self.Tin + self.H].copy()  # (H, N, 3)
+        y_target = self.y[t_start + self.Tin:t_start + self.Tin + self.H].copy()  # (H, N, 2)
+        y_mask = self.y_mask[t_start + self.Tin:t_start + self.Tin + self.H].copy()  # (H, N, 3)
         
         return (
             torch.from_numpy(x_input).float(),
             torch.from_numpy(x_grid).float(),
-            torch.from_numpy(y_target).float()
+            torch.from_numpy(y_target).float(),
+            torch.from_numpy(y_mask).float(),
         )
 
 
@@ -101,58 +112,77 @@ def create_datasets(
     rocof: np.ndarray,
     angle_delta: np.ndarray,
     volt_dev: np.ndarray,
+    observed_mask: np.ndarray,
     grid_embeddings: np.ndarray,
     Tin: int = 100,
     H: int = 10,
     train_frac: float = 0.8,
     val_frac: float = 0.1,
+    test_frac: float = 0.1,
+    pred_frac: float = 0.0,
     stride_train: int = 1,
     stride_val: int = 1,
-    stride_test: int = 1
-) -> Tuple[PMUForecastDataset, PMUForecastDataset, PMUForecastDataset]:
+    stride_test: int = 1,
+    stride_pred: int = 1,
+) -> Tuple[PMUForecastDataset, PMUForecastDataset, PMUForecastDataset, PMUForecastDataset]:
     """
     Create train/val/test splits based on time.
     
     Args:
         train_frac: Fraction for training (0.8 = 80%)
-        val_frac: Fraction for validation (0.1 = 10%)
-        Test fraction is implicitly 1 - train_frac - val_frac
+        val_frac: Fraction for validation
+        test_frac: Fraction for testing
+        pred_frac: Fraction reserved as a final prediction holdout
         stride_* : Sampling stride for each split (useful to reduce val/test size)
     
     Returns:
-        (train_dataset, val_dataset, test_dataset)
+        (train_dataset, val_dataset, test_dataset, pred_dataset)
     """
     T = len(freq_dev)
+    total_frac = train_frac + val_frac + test_frac + pred_frac
+    if total_frac > 1.0 + 1e-8:
+        raise ValueError(f"Split fractions sum to {total_frac:.3f}, which is greater than 1.0")
     
     # Split by time
     train_end = int(T * train_frac)
     val_end = train_end + int(T * val_frac)
+    test_end = val_end + int(T * test_frac)
+    pred_end = test_end + int(T * pred_frac)
+    pred_end = min(pred_end, T)
     
     def slice_arrays(start, end, arrays):
         return tuple(arr[start:end] for arr in arrays)
     
-    freq_train, rocof_train, angle_train, volt_train = \
-        slice_arrays(0, train_end, [freq_dev, rocof, angle_delta, volt_dev])
+    freq_train, rocof_train, angle_train, volt_train, mask_train = \
+        slice_arrays(0, train_end, [freq_dev, rocof, angle_delta, volt_dev, observed_mask])
     
-    freq_val, rocof_val, angle_val, volt_val = \
-        slice_arrays(train_end, val_end, [freq_dev, rocof, angle_delta, volt_dev])
+    freq_val, rocof_val, angle_val, volt_val, mask_val = \
+        slice_arrays(train_end, val_end, [freq_dev, rocof, angle_delta, volt_dev, observed_mask])
     
-    freq_test, rocof_test, angle_test, volt_test = \
-        slice_arrays(val_end, T, [freq_dev, rocof, angle_delta, volt_dev])
+    freq_test, rocof_test, angle_test, volt_test, mask_test = \
+        slice_arrays(val_end, test_end, [freq_dev, rocof, angle_delta, volt_dev, observed_mask])
+
+    freq_pred, rocof_pred, angle_pred, volt_pred, mask_pred = \
+        slice_arrays(test_end, pred_end if pred_frac > 0 else T, [freq_dev, rocof, angle_delta, volt_dev, observed_mask])
     
     train_ds = PMUForecastDataset(
-        freq_train, rocof_train, angle_train, volt_train, grid_embeddings,
+        freq_train, rocof_train, angle_train, volt_train, mask_train, grid_embeddings,
         Tin=Tin, H=H, stride=stride_train
     )
     
     val_ds = PMUForecastDataset(
-        freq_val, rocof_val, angle_val, volt_val, grid_embeddings,
+        freq_val, rocof_val, angle_val, volt_val, mask_val, grid_embeddings,
         Tin=Tin, H=H, stride=stride_val
     )
     
     test_ds = PMUForecastDataset(
-        freq_test, rocof_test, angle_test, volt_test, grid_embeddings,
+        freq_test, rocof_test, angle_test, volt_test, mask_test, grid_embeddings,
         Tin=Tin, H=H, stride=stride_test
     )
+
+    pred_ds = PMUForecastDataset(
+        freq_pred, rocof_pred, angle_pred, volt_pred, mask_pred, grid_embeddings,
+        Tin=Tin, H=H, stride=stride_pred
+    )
     
-    return train_ds, val_ds, test_ds
+    return train_ds, val_ds, test_ds, pred_ds
