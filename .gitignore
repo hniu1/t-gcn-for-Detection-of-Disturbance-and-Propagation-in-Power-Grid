@@ -12,9 +12,8 @@ results/*_targets.npy
 *.pt
 results
 results_masked_cov80_full_scaled
-test_analysis_cov80
+# test_analysis_cov80
 # downstream_tasks/task1_regional_anomalies/outputs
-supervisor_update_2026-06-03.md
 
 # Python cache
 __pycache__/

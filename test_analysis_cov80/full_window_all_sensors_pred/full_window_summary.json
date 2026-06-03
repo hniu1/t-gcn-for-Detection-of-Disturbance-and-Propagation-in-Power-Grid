@@ -1,0 +1,50 @@
+{
+  "input_shapes": {
+    "predictions": [
+      8185,
+      10,
+      107,
+      2
+    ],
+    "targets": [
+      8185,
+      10,
+      107,
+      2
+    ],
+    "reduced": [
+      8185,
+      107,
+      2
+    ]
+  },
+  "horizon_reduce": "mean",
+  "alpha": 0.18,
+  "sensor_ordering": "graph_spectral",
+  "sensor_ordering_label": "graph spectral order",
+  "ordered_sensor_count": 107,
+  "feature_stats": {
+    "freq_dev": {
+      "mse": 7.264834857778624e-05,
+      "mae": 0.0039184968918561935,
+      "rmse": 0.008523399941623211,
+      "mean_actual": -0.0036777628120034933,
+      "mean_predicted": -0.004228457808494568,
+      "p50_abs_error": 0.002112641930580139,
+      "p90_abs_error": 0.009071084670722485,
+      "p95_abs_error": 0.013209023512899876
+    },
+    "volt_dev": {
+      "mse": 0.2052168995141983,
+      "mae": 0.19967150688171387,
+      "rmse": 0.4530087113380432,
+      "mean_actual": -0.1825207769870758,
+      "mean_predicted": -0.19295243918895721,
+      "p50_abs_error": 0.09482383728027344,
+      "p90_abs_error": 0.4666459560394287,
+      "p95_abs_error": 0.6786034107208252
+    }
+  },
+  "split_name": "pred",
+  "data_variant": "original"
+}
