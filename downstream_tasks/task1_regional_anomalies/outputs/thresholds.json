@@ -1,0 +1,9 @@
+{
+  "freq_threshold": 0.011357825249433517,
+  "rocof_threshold": 0.0033070878125727177,
+  "edge_threshold": 0.1414004782055052,
+  "true_rocof_min_abs": 0.0005,
+  "freq_quantile": 0.95,
+  "rocof_quantile": 0.95,
+  "edge_quantile": 0.7
+}

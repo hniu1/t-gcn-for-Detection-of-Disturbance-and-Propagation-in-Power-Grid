@@ -13,7 +13,7 @@ results/*_targets.npy
 results
 results_masked_cov80_full_scaled
 test_analysis_cov80
-downstream_tasks/task1_regional_anomalies/outputs
+# downstream_tasks/task1_regional_anomalies/outputs
 supervisor_update_2026-06-03.md
 
 # Python cache
