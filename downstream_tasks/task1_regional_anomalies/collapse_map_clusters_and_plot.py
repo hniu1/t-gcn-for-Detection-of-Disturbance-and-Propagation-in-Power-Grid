@@ -339,12 +339,9 @@ def plot_episode(
     freq_ax.legend(fontsize=7, ncol=3)
     dev_ax.legend(fontsize=7, ncol=2)
 
-    sensor_title_items = [f"{sid}({name_map.get(sid, f'Sensor-{sid}')})" for sid in sensor_ids]
-    sensor_title = ", ".join(sensor_title_items)
     fig.suptitle(
         f"Episode {int(episode.episode_id)} | size={int(episode.cluster_size)} | peak_mean={float(episode.peak_mean_abs_err):.4f} | "
-        f"window=[{int(episode.start_time_idx)},{int(episode.end_time_idx)}]\n"
-        f"Sensors: {sensor_title}",
+        f"window=[{int(episode.start_time_idx)},{int(episode.end_time_idx)}]",
         y=0.995,
     )
     fig.tight_layout()
