@@ -24,7 +24,7 @@ import shutil
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Inject synthetic faults into the recorded 'true' array.")
-    p.add_argument("--results_dir", type=str, help="Directory to save the results.")
+    p.add_argument("--results_dir", type=str, default="results")
     p.add_argument("--split_name", type=str, default="pred", choices=["test", "pred"])
     p.add_argument("--out_dir", type=str, default="results_injected")
     p.add_argument("--sensor_order_file", type=str, default="results/sensor_order.npy")
