@@ -1,0 +1,14 @@
+{
+  "input_rows": 18365,
+  "episodes_after_collapse": 2071,
+  "selected_for_plot": 120,
+  "used_episode_gap": 120,
+  "peak_exclusion_window": 120,
+  "window_overlap_mode": "sensor_overlap",
+  "auto_increase_cutoff": true,
+  "target_max_episodes": 800,
+  "min_cluster_size": 2,
+  "min_peak_mean_abs_err": 0.0,
+  "split_name": "pred",
+  "results_dir": "results_masked_cov80_full_scaled"
+}

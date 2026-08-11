@@ -1,0 +1,9 @@
+{
+  "source_episodes_csv": "downstream_tasks/task1_regional_anomalies/outputs/map_cluster_episodes_real_time/map_freq_hot_cluster_episodes_selected.csv",
+  "selected_for_plot": 35,
+  "results_dir": "results_masked_cov80_full_scaled",
+  "split_name": "pred",
+  "sample_rate_hz": 10.0,
+  "horizon_values_plotted": 10,
+  "context_radius_samples": 25
+}

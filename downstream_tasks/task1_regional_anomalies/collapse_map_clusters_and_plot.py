@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
 
@@ -273,12 +274,13 @@ def plot_episode(
     latlon_map: dict[int, tuple[float, float]],
     name_map: dict[int, str],
     context_radius: int,
+    timestamps: list[datetime],
 ) -> None:
     sensor_ids = parse_sensor_ids(str(episode.sensor_ids))
     sensor_indices = [int(np.where(sensor_order == sid)[0][0]) for sid in sensor_ids]
     t0 = max(0, int(episode.start_time_idx) - context_radius)
     t1 = min(pred_freq.shape[0] - 1, int(episode.end_time_idx) + context_radius)
-    x = np.arange(t0, t1 + 1)
+    x = timestamps[t0:t1 + 1]
 
     fig, axes = plt.subplots(3, 1, figsize=(12, 10), gridspec_kw={"height_ratios": [1.2, 1.5, 1.3]}, sharex=False)
     graph_ax, freq_ax, dev_ax = axes
@@ -329,19 +331,29 @@ def plot_episode(
         freq_ax.plot(x, pred_line, color=color, linewidth=1.1, linestyle="--", label=f"{sid} pred")
         dev_ax.plot(x, dev_line, color=color, linewidth=1.6, label=f"{sid} |err| {label}")
 
+    episode_start = timestamps[int(episode.start_time_idx)]
+    episode_end = timestamps[int(episode.end_time_idx)]
+    episode_peak = timestamps[int(episode.peak_time_idx)]
     for ax in [freq_ax, dev_ax]:
-        ax.axvspan(int(episode.start_time_idx), int(episode.end_time_idx), color="gold", alpha=0.14)
-        ax.axvline(int(episode.peak_time_idx), linestyle=":", color="black", linewidth=1.2)
+        ax.axvspan(episode_start, episode_end, color="gold", alpha=0.14)
+        ax.axvline(episode_peak, linestyle=":", color="black", linewidth=1.2)
         ax.grid(alpha=0.25)
+        locator = mdates.AutoDateLocator(minticks=4, maxticks=9)
+        ax.xaxis.set_major_locator(locator)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
     freq_ax.set_ylabel("freq_dev")
     dev_ax.set_ylabel("|pred-true|")
-    dev_ax.set_xlabel("Sample index")
+    dev_ax.set_xlabel(f"Time on {episode_peak:%Y-%m-%d}")
     freq_ax.legend(fontsize=7, ncol=3)
     dev_ax.legend(fontsize=7, ncol=2)
 
+    sensor_title = ", ".join(
+        f"{sid}({name_map.get(sid, f'Sensor-{sid}')})" for sid in sensor_ids
+    )
     fig.suptitle(
         f"Episode {int(episode.episode_id)} | size={int(episode.cluster_size)} | peak_mean={float(episode.peak_mean_abs_err):.4f} | "
-        f"window=[{int(episode.start_time_idx)},{int(episode.end_time_idx)}]",
+        f"window=[{episode_start:%H:%M:%S}, {episode_end:%H:%M:%S}]\n"
+        f"Sensors: {sensor_title}",
         y=0.995,
     )
     fig.tight_layout()
@@ -394,6 +406,12 @@ def main() -> None:
     true_r = reduce_horizon(true, args.horizon_reduce)
     pred_freq = pred_r[:, :, args.feature_idx]
     true_freq = true_r[:, :, args.feature_idx]
+    timestamps = reconstruct_split_timestamps(
+        results_dir,
+        args.split_name,
+        pred_freq.shape[0],
+        args.horizon_reduce,
+    )
 
     sensor_order = np.load(Path("results/sensor_order.npy")).astype(int)
     adjacency = np.load(Path("results/A_geo.npy")).astype(float)
@@ -414,6 +432,7 @@ def main() -> None:
             latlon_map=latlon_map,
             name_map=name_map,
             context_radius=args.context_radius,
+            timestamps=timestamps,
         )
 
     summary = {

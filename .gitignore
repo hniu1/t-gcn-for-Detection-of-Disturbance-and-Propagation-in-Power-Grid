@@ -12,6 +12,7 @@ results/*_targets.npy
 *.pt
 results
 results_masked_cov80_full_scaled
+results_masked_cov80_full_scaled/graphs
 # test_analysis_cov80
 # downstream_tasks/task1_regional_anomalies/outputs
 
